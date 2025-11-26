@@ -1,4 +1,4 @@
-const API_URL = "https://TU_BACKEND_RENDER.onrender.com/api";
+const API_URL = "https://backend-qaligo.onrender.com/api";
 
 export async function apiGet(path) {
   const res = await fetch(API_URL + path);
