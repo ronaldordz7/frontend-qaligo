@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Q'aliGo | Iniciar sesión</title>
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      margin: 70px auto;
+      padding: 32px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #error-msg {
+      text-align: center;
+      margin-bottom: 12px;
+      color: #ff6b6b;
+      font-weight: 600;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="navbar glass">
+  <h2 onclick="location.href='index.html'" style="cursor:pointer;">Q'aliGo</h2>
+
+  <nav>
+    <a href="index.html">Menú</a>
+    <a href="register.html">Registrarme</a>
+  </nav>
+</header>
+
+
+<main class="container">
+
+  <div class="login-box glass">
+    <h2>Iniciar sesión</h2>
+
+    <p id="error-msg"></p>
+
+    <input id="email" type="email" placeholder="Correo electrónico" class="input">
+    <input id="password" type="password" placeholder="Contraseña" class="input">
+
+    <button id="login-btn" class="btn" style="width:100%;margin-top:14px;">Entrar</button>
+
+    <p style="text-align:center;margin-top:14px;opacity:0.8;">
+      ¿No tienes cuenta?  
+      <a href="register.html" style="color:#22c55e;">Regístrate aquí</a>
+    </p>
+  </div>
+
+</main>
+
+<script type="module">
+import { login } from "./assets/js/auth.js";
+
+document.getElementById("login-btn").onclick = async () => {
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  const errorMsg = document.getElementById("error-msg");
+
+  if (!email || !pass) {
+    errorMsg.textContent = "Completa todos los campos.";
+    errorMsg.style.display = "block";
+    return;
+  }
+
+  const res = await login(email, pass);
+
+  if (res.error) {
+    errorMsg.textContent = "Correo o contraseña incorrectos.";
+    errorMsg.style.display = "block";
+    return;
+  }
+
+  // Redirección inteligente:
+  const redirect = localStorage.getItem("redirect_after_login");
+
+  if (redirect) {
+    localStorage.removeItem("redirect_after_login");
+    window.location.href = redirect;
+  } else {
+    window.location.href = "perfil.html";
+  }
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Q'aliGo | Personalizar plato</title>
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="navbar glass">
+  <h2 onclick="location.href='index.html'" style="cursor:pointer;">Q'aliGo</h2>
+  
+  <nav>
+    <a href="index.html">Menú</a>
+    <a href="perfil.html">Mi Cuenta</a>
+  </nav>
+
+  <button class="btn" onclick="location.href='login.html'">Iniciar sesión</button>
+</header>
+
+<main class="container">
+  <a href="index.html" style="color:#22c55e;">← Volver al menú</a>
+
+  <div id="product-wrapper" class="glass" style="
+    display:flex;
+    gap:28px;
+    margin-top:24px;
+    padding:28px;
+  ">
+
+    <!-- Imagen -->
+    <div style="flex:1;">
+      <img id="product-img" src="" style="width:100%;border-radius:18px;">
+    </div>
+
+    <!-- Info -->
+    <div style="flex:1;">
+      <h2 id="product-name"></h2>
+      <p id="product-desc" style="opacity:0.8;margin-bottom:10px;"></p>
+      <h3 id="base-price" style="margin-bottom:18px;"></h3>
+
+      <!-- Opciones dinámicas -->
+      <div id="options-section"></div>
+
+      <!-- Precio final -->
+      <h2 id="final-price" style="margin-top:22px;">S/ 0.00</h2>
+
+      <button class="btn" id="add-to-cart" style="margin-top:14px;">
+        Agregar al carrito
+      </button>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+import { apiGet } from "./assets/js/api.js";
+import { addItem } from "./assets/js/cart.js";
+
+let product = null;
+let selections = {
+  BASE: null,
+  PROTEIN: null,
+  EXTRAS: []
+};
+
+// Obtener parámetros URL
+const url = new URLSearchParams(window.location.search);
+const productId = url.get("id");
+
+// =========================
+// Cargar producto del backend
+// =========================
+async function loadProduct() {
+  product = await apiGet(`/products/${productId}`);
+
+  if (!product) {
+    document.body.innerHTML = "<h2>Error al cargar producto</h2>";
+    return;
+  }
+
+  // Rellenar datos
+  document.getElementById("product-img").src = product.imageUrl;
+  document.getElementById("product-name").textContent = product.name;
+  document.getElementById("product-desc").textContent = product.description;
+  document.getElementById("base-price").textContent = `Precio base: S/ ${product.basePrice.toFixed(2)}`;
+
+  renderOptions(product.options);
+
+  updatePrice();
+}
+
+// =========================
+// Mostrar opciones
+// =========================
+function renderOptions(options) {
+  const container = document.getElementById("options-section");
+
+  const groups = {
+    BASE: [],
+    PROTEIN: [],
+    EXTRA: []
+  };
+
+  options.forEach(o => groups[o.type].push(o));
+
+  container.innerHTML = "";
+
+  // Renderizar un grupo
+  function renderGroup(title, type, items, multiple = false) {
+    if (items.length === 0) return;
+
+    const div = document.createElement("div");
+    div.classList.add("product-options");
+
+    div.innerHTML = `<h3>${title}</h3>`;
+
+    items.forEach(opt => {
+      const btn = document.createElement("button");
+      btn.className = "option-pill";
+      btn.textContent = `${opt.label} (+S/ ${opt.priceDelta.toFixed(2)})`;
+
+      btn.onclick = () => {
+        if (multiple) {
+          // EXTRAS
+          if (selections.EXTRAS.includes(opt.id)) {
+            selections.EXTRAS = selections.EXTRAS.filter(x => x !== opt.id);
+            btn.classList.remove("active");
+          } else {
+            selections.EXTRAS.push(opt.id);
+            btn.classList.add("active");
+          }
+        } else {
+          // BASE o PROTEIN
+          selections[type] = opt.id;
+
+          [...div.querySelectorAll(".option-pill")].forEach(x =>
+            x.classList.remove("active")
+          );
+
+          btn.classList.add("active");
+        }
+
+        updatePrice();
+      };
+
+      div.appendChild(btn);
+    });
+
+    container.appendChild(div);
+  }
+
+  renderGroup("Elige tu base", "BASE", groups.BASE);
+  renderGroup("Proteína", "PROTEIN", groups.PROTEIN);
+  renderGroup("Extras", "EXTRAS", groups.EXTRA, true);
+}
+
+// =========================
+// Calcular precio final
+// =========================
+function updatePrice() {
+  let price = product.basePrice;
+
+  const optsById = Object.fromEntries(product.options.map(o => [o.id, o]));
+
+  if (selections.BASE) price += optsById[selections.BASE].priceDelta;
+  if (selections.PROTEIN) price += optsById[selections.PROTEIN].priceDelta;
+  selections.EXTRAS.forEach(id => (price += optsById[id].priceDelta));
+
+  document.getElementById("final-price").textContent = `S/ ${price.toFixed(2)}`;
+
+  return price;
+}
+
+// =========================
+// Agregar al carrito
+// =========================
+document.getElementById("add-to-cart").onclick = () => {
+  const finalPrice = updatePrice();
+
+  const customization = {
+    base: selections.BASE,
+    protein: selections.PROTEIN,
+    extras: selections.EXTRAS
+  };
+
+  addItem({
+    productId: product.id,
+    name: product.name,
+    unitPrice: finalPrice,
+    quantity: 1,
+    customizationJson: JSON.stringify(customization)
+  });
+
+  alert("Producto agregado al carrito");
+  window.location.href = "index.html";
+};
+
+// Init
+loadProduct();
+</script>
+
+</body>
+</html>

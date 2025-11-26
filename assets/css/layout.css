@@ -1,0 +1,26 @@
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.cart-summary {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+  padding: 16px;
+  width: 220px;
+  z-index: 30;
+}

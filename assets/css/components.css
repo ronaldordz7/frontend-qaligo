@@ -1,0 +1,91 @@
+/* NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.navbar a {
+  color: var(--white);
+  text-decoration: none;
+  margin: 0 12px;
+  font-weight: 600;
+}
+
+/* BOTONES */
+.btn {
+  padding: 10px 20px;
+  border-radius: 50px;
+  background: var(--green);
+  color: var(--white);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: 0.25s;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  background: var(--green-dark);
+}
+
+/* PRODUCT CARD */
+.product-card {
+  padding: 16px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.product-card img {
+  width: 100%;
+  border-radius: 14px;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* CHATBOT */
+.chatbot-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 16px;
+  border-radius: 50%;
+  background: var(--green);
+  cursor: pointer;
+}
+
+.chatbot-panel {
+  display: none;
+  position: fixed;
+  right: 20px;
+  bottom: 90px;
+  width: 320px;
+  height: 400px;
+  padding: 16px;
+  flex-direction: column;
+}
+
+.msg-user {
+  background: rgba(34,197,94,0.3);
+  text-align: right;
+  padding: 8px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.msg-bot {
+  background: rgba(255,255,255,0.2);
+  padding: 8px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}

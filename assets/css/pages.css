@@ -1,0 +1,19 @@
+.product-options {
+  margin-top: 20px;
+}
+
+.option-pill {
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--glass-border);
+  border-radius: 50px;
+  cursor: pointer;
+  margin: 4px;
+  transition: 0.25s;
+}
+
+.option-pill:hover,
+.option-pill.active {
+  background: var(--green);
+  border-color: var(--green-dark);
+}

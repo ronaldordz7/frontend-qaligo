@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Q'aliGo | Carrito</title>
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="navbar glass">
+  <h2 onclick="location.href='index.html'" style="cursor:pointer;">Q'aliGo</h2>
+
+  <nav>
+    <a href="index.html">Menú</a>
+    <a href="perfil.html">Mi Cuenta</a>
+  </nav>
+
+  <button class="btn" onclick="location.href='login.html'">Iniciar sesión</button>
+</header>
+
+<main class="container">
+  <a href="index.html" style="color:#22c55e;">← Seguir comprando</a>
+
+  <h2 class="page-title">Tu carrito</h2>
+
+  <div id="cart-container" class="glass" style="padding:24px;">
+    <!-- Aquí se inyectan los ítems -->
+  </div>
+
+  <div id="cart-summary-bottom" class="glass" style="
+    margin-top:24px;
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  ">
+    <div>
+      <h3>Total</h3>
+      <p id="cart-total-bottom">S/ 0.00</p>
+    </div>
+    <button class="btn" onclick="location.href='checkout.html'">Ir a pagar</button>
+  </div>
+</main>
+
+<script type="module">
+import { getCart } from "./assets/js/cart.js";
+import { totalPrice } from "./assets/js/cart.js";
+
+function renderCart() {
+  const container = document.getElementById("cart-container");
+  const cart = getCart();
+
+  if (!cart.length) {
+    container.innerHTML = "<p>No tienes productos en el carrito.</p>";
+    document.getElementById("cart-total-bottom").textContent = "S/ 0.00";
+    return;
+  }
+
+  container.innerHTML = "";
+
+  cart.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "glass";
+    row.style.marginBottom = "12px";
+    row.style.padding = "12px";
+    row.style.display = "flex";
+    row.style.justifyContent = "space-between";
+    row.style.alignItems = "center";
+    row.style.gap = "16px";
+
+    const left = document.createElement("div");
+    left.style.flex = "1";
+
+    const nameEl = document.createElement("h3");
+    nameEl.textContent = item.name;
+
+    const customEl = document.createElement("p");
+    customEl.style.fontSize = "13px";
+    customEl.style.opacity = "0.8";
+    if (item.customizationJson) {
+      customEl.textContent = "Personalización: " + item.customizationJson;
+    } else {
+      customEl.textContent = "Sin personalización";
+    }
+
+    left.appendChild(nameEl);
+    left.appendChild(customEl);
+
+    // centro: cantidad
+    const middle = document.createElement("div");
+    middle.style.display = "flex";
+    middle.style.alignItems = "center";
+    middle.style.gap = "8px";
+
+    const btnMinus = document.createElement("button");
+    btnMinus.textContent = "−";
+    btnMinus.className = "btn";
+    btnMinus.style.padding = "6px 10px";
+
+    const qty = document.createElement("span");
+    qty.textContent = item.quantity;
+    qty.style.minWidth = "24px";
+    qty.style.textAlign = "center";
+
+    const btnPlus = document.createElement("button");
+    btnPlus.textContent = "+";
+    btnPlus.className = "btn";
+    btnPlus.style.padding = "6px 10px";
+
+    btnMinus.onclick = () => updateQuantity(index, item.quantity - 1);
+    btnPlus.onclick = () => updateQuantity(index, item.quantity + 1);
+
+    middle.appendChild(btnMinus);
+    middle.appendChild(qty);
+    middle.appendChild(btnPlus);
+
+    // derecha: precios y eliminar
+    const right = document.createElement("div");
+    right.style.textAlign = "right";
+
+    const unit = document.createElement("p");
+    unit.textContent = `Unit: S/ ${item.unitPrice.toFixed(2)}`;
+
+    const sub = document.createElement("p");
+    sub.innerHTML = `<b>Sub: S/ ${(item.unitPrice * item.quantity).toFixed(2)}</b>`;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "Eliminar";
+    removeBtn.className = "btn";
+    removeBtn.style.marginTop = "6px";
+    removeBtn.style.background = "transparent";
+    removeBtn.style.border = "1px solid rgba(255,255,255,0.4)";
+    removeBtn.style.color = "var(--white)";
+
+    removeBtn.onclick = () => removeItem(index);
+
+    right.appendChild(unit);
+    right.appendChild(sub);
+    right.appendChild(removeBtn);
+
+    row.appendChild(left);
+    row.appendChild(middle);
+    row.appendChild(right);
+
+    container.appendChild(row);
+  });
+
+  document.getElementById("cart-total-bottom").textContent =
+    "S/ " + totalPrice().toFixed(2);
+}
+
+function updateQuantity(index, newQty) {
+  const cart = getCart();
+  if (newQty <= 0) {
+    cart.splice(index, 1);
+  } else {
+    cart[index].quantity = newQty;
+  }
+  localStorage.setItem("qaligo_cart", JSON.stringify(cart));
+  renderCart();
+}
+
+function removeItem(index) {
+  const cart = getCart();
+  cart.splice(index, 1);
+  localStorage.setItem("qaligo_cart", JSON.stringify(cart));
+  renderCart();
+}
+
+// init
+renderCart();
+</script>
+
+</body>
+</html>

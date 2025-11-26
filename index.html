@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Q'aliGo | Menú</title>
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header class="navbar glass">
+  <h2>Q'aliGo</h2>
+
+  <nav>
+    <a href="index.html">Menú</a>
+    <a href="perfil.html" id="nav-account">Mi Cuenta</a>
+  </nav>
+
+  <button id="nav-login" class="btn" onclick="location.href='login.html'">Iniciar sesión</button>
+</header>
+
+<main class="container">
+  <h2 class="page-title">Menú del día</h2>
+
+  <div id="cart-summary" class="cart-summary glass">
+    <h3>🛒 Carrito</h3>
+    <p id="cart-count">0 items</p>
+    <p id="cart-total">S/ 0.00</p>
+    <button class="btn" onclick="location.href='checkout.html'">Ir a pagar</button>
+  </div>
+
+  <section id="product-grid" class="product-grid"></section>
+</main>
+
+
+<!-- Chatbot -->
+<div id="chatbot-button" class="chatbot-btn">💬</div>
+
+<div id="chatbot-panel" class="chatbot-panel glass">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <h3>Asistente Q'aliGo</h3>
+    <button id="close-chat" style="background:none;border:none;color:white;font-size:18px;">×</button>
+  </div>
+
+  <div id="chat-messages" style="flex:1;overflow-y:auto;margin:10px 0;"></div>
+
+  <div style="display:flex;gap:6px;">
+    <input id="chat-text" placeholder="Escribe algo..." class="glass" style="flex:1;padding:8px;">
+    <button id="send-chat" class="btn">Enviar</button>
+  </div>
+</div>
+
+
+<script type="module" src="assets/js/main.js"></script>
+
+</body>
+</html>
+

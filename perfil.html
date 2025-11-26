@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Q'aliGo | Mi perfil</title>
+
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .profile-box {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 30px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    h2, h3 {
+      margin-bottom: 10px;
+    }
+
+    .order-card {
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 14px;
+    }
+
+    .order-items {
+      margin-top: 10px;
+      padding-left: 16px;
+      opacity: 0.9;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #fff;
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="navbar glass">
+  <h2 onclick="location.href='index.html'" style="cursor:pointer;">Q'aliGo</h2>
+
+  <nav>
+    <a href="index.html">Menú</a>
+    <a href="perfil.html" class="active">Mi Cuenta</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <button class="btn" onclick="location.href='login.html'">Iniciar sesión</button>
+</header>
+
+
+<main class="container">
+
+  <div id="profile-box" class="profile-box glass">
+    <!-- Se completa dinámicamente -->
+  </div>
+
+</main>
+
+<script type="module">
+import { apiGet } from "./assets/js/api.js";
+import { logout } from "./assets/js/auth.js";
+
+// Validar si está logueado
+const token = localStorage.getItem("token");
+const user = JSON.parse(localStorage.getItem("user") || "null");
+
+const box = document.getElementById("profile-box");
+
+if (!token || !user) {
+  box.innerHTML = `
+    <p>Debes iniciar sesión para ver tu perfil.</p>
+    <button class="btn" onclick="location.href='login.html'">Iniciar sesión</button>
+  `;
+} else {
+  loadProfile();
+}
+
+async function loadProfile() {
+  box.innerHTML = `<p>Cargando datos...</p>`;
+
+  // Obtener historial
+  const orders = await apiGet("/orders/my", true)
+    .catch(() => null);
+
+  renderProfile(orders || []);
+}
+
+function renderProfile(orders) {
+  box.innerHTML = `
+    <h2>Hola, ${user.name}</h2>
+    <p style="opacity:0.8;">${user.email}</p>
+
+    <h3 style="margin-top:30px;">Mis pedidos</h3>
+    ${orders.length === 0 ? "<p>No tienes pedidos aún.</p>" : ""}
+    
+    <div id="orders-list"></div>
+
+    <button class="btn logout-btn" onclick="handleLogout()">Cerrar sesión</button>
+  `;
+
+  const list = document.getElementById("orders-list");
+
+  orders.forEach(order => {
+    const div = document.createElement("div");
+    div.className = "order-card glass";
+
+    const date = new Date(order.createdAt).toLocaleString();
+
+    div.innerHTML = `
+      <p><b>Pedido #${order.id}</b> — ${date}</p>
+      <p>Estado: ${order.status}</p>
+      <p>Total: <b>S/ ${order.totalAmount.toFixed(2)}</b></p>
+
+      <div class="order-items">
+        ${order.items
+          .map(
+            item =>
+              `<p>• ${item.productId} — Cant: ${item.quantity} — S/ ${item.unitPrice.toFixed(
+                2
+              )}</p>`
+          )
+          .join("")}
+      </div>
+    `;
+
+    list.appendChild(div);
+  });
+}
+
+window.handleLogout = () => {
+  logout();
+  window.location.href = "index.html";
+};
+</script>
+
+</body>
+</html>
